@@ -1,0 +1,45 @@
+## 更新 aliyun dns
+---
+- name: Check aliyun config
+  shell: aliyun configure --profile akProfile get access-key-id
+  register: check_result
+  changed_when: false
+
+- name: Setup aliyun config
+  shell: "aliyun configure set \
+    --profile akProfile \
+    --mode AK \
+    --region cn-beijing \
+    --access-key-id {{ ali_key }} \
+    --access-key-secret {{ ali_secret }}"
+  when: check_result.stdout is not search('access-key-id=\*\*\*\*\*\*\*')
+
+- name: Setup alidns
+  shell: |
+    read -a args <<< "{{ item }}"
+
+    domain=${args[0] }
+    pr=${args[1] }
+    ip=${args[2] }
+    type=${args[3] }
+
+    res=`aliyun alidns DescribeSubDomainRecords --SubDomain ${pr}.${domain} --Type $type`
+    count=`echo $res | jq ".TotalCount"`
+
+    if [ "${count}" -ne "0" ]
+    then
+      recordIP=$(echo $res | jq '.DomainRecords.Record[0].Value' | tr -d '"')
+      recordType=$(echo $res | jq '.DomainRecords.Record[0].Type' | tr -d '"')
+      if [ $recordIP != $ip ] || [ $recordType != $type ]
+      then
+        recordId=$(echo $res | jq '.DomainRecords.Record[0].RecordId' | tr -d '"')
+        aliyun alidns UpdateDomainRecord --RecordId $recordId --RR $pr --Type $type --Value $ip
+        echo "<<< updated: $domain $pr $ip $type"
+      fi
+    else
+      aliyun alidns AddDomainRecord --DomainName $domain --RR "$pr" --Type $type --Value $ip
+      echo "<<< created: $domain $pr $ip $type"
+    fi
+  with_items: "{{ alidns_records }}"
+  changed_when: "'updated' in res.stdout or 'created' in res.stdout or 'deleted' in res.stdout"
+  register: res

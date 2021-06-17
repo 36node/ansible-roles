@@ -1,0 +1,9 @@
+# 设置参考
+# https://github.com/bitnami/charts/blob/master/bitnami/mysql/values.yaml
+---
+ingress:
+  enabled: true
+  certManager: {{ cert_issuer }}
+  hostname: phpmyadmin.{{ domain }}
+db:
+  host: mysql

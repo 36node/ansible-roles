@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging-alidns
+spec:
+  acme:
+    email: walle@36node.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-staging-alidns
+    solvers:
+      - dns01:
+          webhook:
+            groupName: acme.36node.com
+            solverName: alidns
+            config:
+              region: ""
+              accessKeySecretRef:
+                name: alidns-secret
+                key: access-key
+              secretKeySecretRef:
+                name: alidns-secret
+                key: secret-key

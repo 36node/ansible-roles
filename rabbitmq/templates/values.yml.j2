@@ -1,0 +1,14 @@
+# 设置参考
+# https://github.com/bitnami/charts/blob/master/bitnami/rabbitmq/values.yaml
+---
+global:
+  storageClass: "{{ rabbitmq_storage_class }}"
+auth:
+  username: "{{ rabbitmq_username }}"
+  password: "{{ rabbitmq_password }}"
+clustering:
+  enabled: {{ rabbitmq_clustering_enabled | bool }}
+replicaCount: {{ rabbitmq_replica_count | int }}
+persistence:
+  enabled: {{ rabbitmq_persistence_enabled | bool }}
+  size: "{{ rabbitmq_persistence_size }}"

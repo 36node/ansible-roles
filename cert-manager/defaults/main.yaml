@@ -1,0 +1,6 @@
+alidns_enabled: false
+cert_manager_state: present
+
+# required if alidns_enabled=true
+ali_key: ""
+ali_secret: ""

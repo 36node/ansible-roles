@@ -1,0 +1,25 @@
+---
+state: present
+namespace: data
+
+## If defined, storageClassName: <storageClass>
+## If set to "-", storageClassName: "", which disables dynamic provisioning
+## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
+storage_class:
+
+redis_state: "{{ state }}"
+redis_namespace: "{{ namespace }}"
+redis_storage_class: "{{ storage_class }}"
+
+redis_storage_size: 8Gi
+
+# https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
+redis_chart_values: {}
+redis_default_chart_values:
+  global:
+    storageClass: "{{ redis_storage_class }}"
+  architecture: standalone
+  auth:
+    enabled: false
+  replica:
+    replicaCount: 1

@@ -1,0 +1,7 @@
+---
+## required
+ali_key:
+ali_secret:
+alidns_records:
+  - xxxx.com api 39.105.240.12 A
+  - xxxx.com nextcloud 39.105.240.12 A

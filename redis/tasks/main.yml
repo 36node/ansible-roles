@@ -1,0 +1,30 @@
+---
+# - name: Add bitnami chart repo
+#   community.kubernetes.helm_repository:
+#     state: present
+#     name: bitnami
+#     repo_url: "https://charts.bitnami.com/bitnami"
+# - name: Deploy redis
+#   community.kubernetes.helm:
+#     state: "{{ redis_state }}"
+#     name: redis
+#     namespace: "{{ redis_namespace }}"
+#     create_namespace: true
+#     chart_ref: bitnami/redis
+#     chart_version: 12.8.3
+#     values:
+#       global:
+#         storageClass: "{{ storage_class }}"
+#       architecture: standalone
+#       auth:
+#         enabled: false
+#     wait: yes
+#     wait_timeout: 5m
+#   register: redis_installed
+- name: redis
+  community.kubernetes.k8s:
+    state: "{{ redis_state }}"
+    namespace: "{{ redis_namespace }}"
+    template: "{{ item }}"
+  with_items:
+    - redis.yml.j2

@@ -1,0 +1,24 @@
+---
+state: present
+namespace: data
+
+## If defined, storageClassName: <storageClass>
+## If set to "-", storageClassName: "", which disables dynamic provisioning
+## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
+storage_class:
+
+rabbitmq_state: "{{ state }}"
+rabbitmq_namespace: "{{ namespace }}"
+rabbitmq_storage_class: "{{ storage_class }}"
+
+rabbitmq_username: user
+rabbitmq_password: foo
+
+rabbitmq_clustering_enabled: false
+
+rabbitmq_replica_count: 1
+
+rabbitmq_persistence_size: 8Gi
+rabbitmq_persistence_enabled: true
+
+rabbitmq_chart_values: {}
