@@ -1,31 +1,26 @@
 # mongodb
 
-安装mongodb
+安装 mongodb
 
-## Requirements
+# 其他
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+当前安装的 mongodb 版本为 4.4.4
 
-## Role Variables
+## 参考命令行安装
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-release bitnami/mongodb
+```
 
-## Dependencies
+## 调试 mongodb
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+```
+kubectl port-forward --namespace data svc/mongodb-headless 27017:27017
+```
 
-## Example Playbook
+## 如果需要手动写入或者修改数据，需要连到 primary 数据库
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-## License
-
-BSD
-
-## Author Information
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+```
+kubectl -n data port-forward mongodb-0 37017:27017
+```

@@ -2,30 +2,40 @@
 
 安装 redis
 
-## Requirements
+# 其他
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- bitnami redis chart
 
-## Role Variables
+## 参考命令行安装
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-release bitnami/redis
+```
 
-## Dependencies
+## 连接 redis
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Redis(TM) can be accessed via port 6379 on the following DNS names from within your cluster:
 
-## Example Playbook
+redis-master.data.svc.cluster.local for read/write operations
+redis-slave.data.svc.cluster.local for read-only operations
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+To get your password run:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+    export REDIS_PASSWORD=$(kubectl get secret --namespace data redis -o jsonpath="{.data.redis-password}" | base64 --decode)
 
-## License
+To connect to your Redis(TM) server:
 
-BSD
+1. Run a Redis(TM) pod that you can use as a client:
+   kubectl run --namespace data redis-client --rm --tty -i --restart='Never' \
+    --env REDIS_PASSWORD=$REDIS_PASSWORD \
+   --image docker.io/bitnami/redis:6.0.12-debian-10-r3 -- bash
 
-## Author Information
+2. Connect using the Redis(TM) CLI:
+   redis-cli -h redis-master -a $REDIS_PASSWORD
+   redis-cli -h redis-slave -a $REDIS_PASSWORD
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+To connect to your database from outside the cluster execute the following commands:
+
+    kubectl port-forward --namespace data svc/redis-master 6379:6379 &
+    redis-cli -h 127.0.0.1 -p 6379 -a $REDIS_PASSWORD

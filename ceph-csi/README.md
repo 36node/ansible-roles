@@ -2,6 +2,12 @@
 
 安装 rook-ceph，支持 rdb 块存储及 cephfs 文件存储
 
+# 获取密码
+
+```
+kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
+```
+
 ## Requirements
 
 Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.

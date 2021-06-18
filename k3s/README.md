@@ -2,30 +2,97 @@
 
 在 master 和 worker 节点安装 k3s
 
-## Requirements
+# 其他
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+ansible 安装 k3s 集群, 利用 k3sup 进行简便安装
 
-## Role Variables
+## 准备控制机
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- 安装 ansible
+- 安装 python
+- 安装 kubectl
 
-## Dependencies
+pip install openshift===0.11.0
+pip install kubernetes===11.0.0
+pip install pyyaml
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+## Ingress
 
-## Example Playbook
+使用 k3s 自带的 traefic, 需要加上 `kubernetes.io/ingress.class: traefik`
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+书写样例
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bus-admin-pudong-airport
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-alidns
+    # traefik.ingress.kubernetes.io/redirect-entry-point: https
+spec:
+  rules:
+    - host: pudongair.36node.com
+      http:
+        paths:
+          - backend:
+              serviceName: bus-admin-pudong-airport
+              servicePort: 80
+            path: /
+  tls:
+    - secretName: pudongair.36node.com
+      hosts:
+        - pudongair.36node.com
+```
 
-## License
+## Excluding the Service LB from Nodes
 
-BSD
+To exclude nodes from using the Service LB, add the following label to the nodes that should not be excluded:
 
-## Author Information
+```
+svccontroller.k3s.cattle.io/enablelb
+```
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+If the label is used, the service load balancer only runs on the labeled nodes.
+
+k3s 启动的时候，可以用 --label-nodes 去关闭或者开启节点的 lb 功能
+
+## private registry
+
+https://rancher.com/docs/k3s/latest/en/installation/private-registry/
+
+## k8s 相关命令
+
+查看日志
+
+- systemctl status kubelet 确认状态
+- journalctl -u kubelet 查看错误日志
+- journalctl -u k3s 查看 k3s 的日志
+- journalctl -xe
+
+查看 k8s 资源版本
+
+```
+kubectl explain cronjob
+```
+
+## 错误解决
+
+1. invalid capacity 0 on image filesystem
+
+https://github.com/ubuntu/microk8s/issues/401#issuecomment-480945986
+
+## 重新创建 kubeconfig
+
+```
+k3sup install --skip-install \
+    --ip "{{ k8s_lb }}" \
+    --user "{{ ansible_user }}" \
+    --context {{ k8s_cluster_name }} \
+    --local-path ~/.kube/config.{{ k8s_cluster_name }} \
+    --k3s-extra-args '--tls-san {{ k8s_lb }} --node-label svccontroller.k3s.cattle.io/enablelb=true' \
+    --ssh-key {{ ansible_private_key_file }} \
+    --cluster
+```

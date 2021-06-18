@@ -2,30 +2,48 @@
 
 安装 mysql
 
-## Requirements
+# 其他
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- bitnami mysql chart
+- bitnami phpmyadmin chart
 
-## Role Variables
+## 参考命令行安装
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-release bitnami/mysql
+```
 
-## Dependencies
+## 连接 mysql
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Tip:
 
-## Example Playbook
+Watch the deployment status using the command: kubectl get pods -w --namespace data
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Services:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+echo Primary: mysql.data.svc.cluster.local:3306
 
-## License
+Administrator credentials:
 
-BSD
+echo Username: root
+echo Password : $(kubectl get secret --namespace data mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
 
-## Author Information
+To connect to your database:
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+1. Run a pod that you can use as a client:
+
+   kubectl run mysql-client --rm --tty -i --restart='Never' --image docker.io/bitnami/mysql:8.0.23-debian-10-r57 --namespace data --command -- bash
+
+2. To connect to primary service (read/write):
+
+   mysql -h mysql.data.svc.cluster.local -uroot -p my_database
+
+To upgrade this helm chart:
+
+1. Obtain the password as described on the 'Administrator credentials' section and set the 'root.password' parameter as shown below:
+
+   ROOT_PASSWORD=$(kubectl get secret --namespace data mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
+      helm upgrade mysql bitnami/mysql --set auth.rootPassword=$ROOT_PASSWORD
+
+## phpmyadmin
