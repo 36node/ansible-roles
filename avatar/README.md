@@ -1,31 +1,31 @@
-# Avatar
+# avatar
 
-阿凡达，寓意信息的链接
+安装 kafka、elasticsearch、vector，并配置 basic-auth 的 ingress
 
-Avatar 是 36node 团队采用的消息总线方案，用于日志采集和微服务间的异步通知。
+## Requirements
 
-## 访问方式
+Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
 
-https://kibana.{domain}
+## Role Variables
 
-## 查看状态
+A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
 
-```
-helm status elasticsearch -n { namespace }
-helm status kafka -n { namespace }
-helm status vector -n { namespace }
-```
+## Dependencies
 
-## 用 kafkacat 进行测试
+A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
-```
-kubectl run kafka-client --restart='Never' --image confluentinc/cp-kafkacat --command -- sleep infinity
-kubectl exec --tty -i kafka-client -- bash
+## Example Playbook
 
-kafkacat -b kafka.data:9092 -C -t tbox -o end
+Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-```
+    - hosts: servers
+      roles:
+         - { role: username.rolename, x: 42 }
 
-## 清理索引的方法
+## License
 
-https://www.ibm.com/docs/en/cloud-private/3.2.0?topic=configuration-manually-removing-log-indices
+BSD
+
+## Author Information
+
+An optional section for the role authors to include contact information, or a website (HTML is not allowed).

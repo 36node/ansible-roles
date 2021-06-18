@@ -1,14 +1,31 @@
-## cert-manager 调试错误的流程
+# cert-manager
 
-https://cert-manager.io/docs/faq/troubleshooting/
+安装 cert-manager，用于生成 https 证书
 
-## 两种域名验证方式
+## Requirements
 
-发 tls 证书时，服务机构要验证服务器 ip 的归属，会采用两种方式:
+Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
 
-1. 给定一个 path，放一个 .well-known/xxxx.txt 文件
-2. 域名添加 cname
+## Role Variables
 
-具体体现在 letsencrypt.yaml 文件的 solvers 一节
+A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
 
-注意：**alidns 默认是关闭的**，需要使用的话请打开，否则当外部使用 `cert_issuer: "letsencrypt-alidns"` 时，是不起作用的
+## Dependencies
+
+A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+
+## Example Playbook
+
+Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+
+    - hosts: servers
+      roles:
+         - { role: username.rolename, x: 42 }
+
+## License
+
+BSD
+
+## Author Information
+
+An optional section for the role authors to include contact information, or a website (HTML is not allowed).
